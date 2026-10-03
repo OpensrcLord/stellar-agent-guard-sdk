@@ -21,7 +21,7 @@
 import { Keypair, rpc } from "@stellar/stellar-sdk";
 import { DEFAULT_NETWORK_PASSPHRASE } from "./admin.ts";
 import { invoke, type InvokeOutcome } from "./invoke.ts";
-import type { PolicyConfig } from "./policy.ts";
+import { unsafeContractAddress, type PolicyConfig } from "./policy.ts";
 import type { AgentSigner, AdminSigner } from "./tx.ts";
 
 /** What one heartbeat submission reports back to the scheduler. */
@@ -193,9 +193,9 @@ export async function submitHeartbeat(params: SubmitHeartbeatParams): Promise<He
   const outcome = await invoke({
     server: params.server,
     source,
-    call: { contract: params.guard, fn: "heartbeat", args: [] },
+    call: { contract: unsafeContractAddress(params.guard), fn: "heartbeat", args: [] },
     networkPassphrase: params.networkPassphrase ?? DEFAULT_NETWORK_PASSPHRASE,
-    guardAuth: { guard: params.guard, agent: params.signer },
+    guardAuth: { guard: unsafeContractAddress(params.guard), agent: params.signer },
     ...(params.pollAttempts !== undefined ? { pollAttempts: params.pollAttempts } : {}),
     ...(params.pollIntervalMs !== undefined ? { pollIntervalMs: params.pollIntervalMs } : {}),
   });
